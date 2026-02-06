@@ -3,21 +3,20 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import ReactPaginateImport from 'react-paginate';
 
 import SearchBar from '../SearchBar/SearchBar';
-import MovieGrid from '../MovieGrid/MovieGrid'; 
+import MovieGrid from '../MovieGrid/MovieGrid';
 import Loader from '../Loader/Loader';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
 
 import { fetchMovies } from '../../services/tmdb';
-import type { FetchMoviesResponse } from '../../types/movie'; 
+import type { FetchMoviesResponse } from '../../types/movie';
 import css from './App.module.css';
 
-// @ts-ignore
-const ReactPaginate = ReactPaginateImport.default || ReactPaginateImport;
+const ReactPaginate = (ReactPaginateImport as any).default || ReactPaginateImport;
 
 const App = () => {
   const [query, setQuery] = useState<string>('');
   const [page, setPage] = useState<number>(1);
-  
+
   const handleSearch = (newQuery: string) => {
     setQuery(newQuery);
     setPage(1);
@@ -27,7 +26,7 @@ const App = () => {
     queryKey: ['movies', query, page],
     queryFn: () => fetchMovies(query, page),
     enabled: !!query,
-    placeholderData: keepPreviousData, 
+    placeholderData: keepPreviousData,
   });
 
   const handlePageClick = ({ selected }: { selected: number }) => {
@@ -39,16 +38,34 @@ const App = () => {
 
   return (
     <div className={css.container}>
-      <SearchBar onSearch={handleSearch} />
+      <div className={css.headerWrapper}>
+        <p className={css.logo}>Powered by TMDB</p>
+        <SearchBar onSearch={handleSearch} />
+      </div>
 
       {isLoading && <Loader />}
       {isError && <ErrorMessage message={error.message} />}
 
-      {/* Прибрали onMovieClick, бо модалки немає */}
+      {data && totalPages > 1 && (
+        <ReactPaginate
+          breakLabel="..."
+          nextLabel="→"
+          previousLabel="←"
+          onPageChange={handlePageClick}
+          pageRangeDisplayed={5}
+          marginPagesDisplayed={1}
+          pageCount={totalPages}
+          forcePage={page - 1}
+          containerClassName={css.pagination}
+          activeClassName={css.active}
+          renderOnZeroPageCount={null}
+        />
+      )}
+
       {data && data.results.length > 0 && (
         <MovieGrid movies={data.results} />
       )}
-      
+
       {data && data.results.length === 0 && query && !isLoading && (
         <p className={css.noResults}>No movies found matching your query.</p>
       )}
