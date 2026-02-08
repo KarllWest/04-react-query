@@ -7,7 +7,7 @@ import MovieGrid from '../MovieGrid/MovieGrid';
 import Loader from '../Loader/Loader';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
 
-import { fetchMovies } from '../../services/tmdb';
+import { fetchMovies } from '../../services/movieService.ts';
 import type { FetchMoviesResponse } from '../../types/movie';
 import css from './App.module.css';
 
