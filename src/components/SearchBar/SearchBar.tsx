@@ -1,39 +1,38 @@
-import { type FormEvent, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import css from './SearchBar.module.css';
 
 interface SearchBarProps {
-  onSearch: (query: string) => void;
+  onSubmit: (query: string) => void;
 }
 
-const SearchBar = ({ onSearch }: SearchBarProps) => {
-  const [value, setValue] = useState<string>('');
-
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!value.trim()) {
+const SearchBar = ({ onSubmit }: SearchBarProps) => {
+  const handleSubmit = (formData: FormData) => {
+    const query = formData.get('query') as string;
+    
+    if (!query.trim()) {
       toast.error('Please enter a search term!');
-      return;
+      return; 
     }
-    onSearch(value);
-    setValue('');
+
+    onSubmit(query);
   };
 
   return (
     <header className={css.header}>
-      <Toaster position="top-right" />
-      <form onSubmit={handleSubmit} className={css.form}>
+      <form action={handleSubmit} className={css.form}>
         <input
-          className={css.input}
+          name="query"
           type="text"
           autoComplete="off"
           autoFocus
-          placeholder="Search movie..."
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
+          placeholder="Search images and photos"
+          className={css.input}
         />
-        <button type="submit" className={css.button}>Search</button>
+        <button type="submit" className={css.btn}>
+          Search
+        </button>
       </form>
+      <Toaster position="top-right" />
     </header>
   );
 };
