@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import ReactPaginateImport from 'react-paginate';
-import { Toaster, toast } from 'react-hot-toast'; 
+import { Toaster, toast } from 'react-hot-toast';
 
 import SearchBar from '../SearchBar/SearchBar';
 import MovieGrid from '../MovieGrid/MovieGrid';
-import MovieModal from '../MovieModal/MovieModal'; 
+import MovieModal from '../MovieModal/MovieModal';
 import Loader from '../Loader/Loader';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
 
@@ -19,16 +19,15 @@ const ReactPaginate = ReactPaginateImport.default || ReactPaginateImport;
 const App = () => {
   const [query, setQuery] = useState<string>('');
   const [page, setPage] = useState<number>(1);
-  
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
-  const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
+
 
   const handleSearch = (newQuery: string) => {
     setQuery(newQuery);
     setPage(1);
   };
 
-  const { data, isLoading, isError, error, isSuccess } = useQuery({ 
+  const { data, isLoading, isError, error, isSuccess } = useQuery({
     queryKey: ['movies', query, page],
     queryFn: () => fetchMovies(query, page),
     enabled: !!query,
@@ -48,11 +47,9 @@ const App = () => {
 
   const openModal = (movie: Movie) => {
     setSelectedMovie(movie);
-    setModalIsOpen(true);
   };
 
   const closeModal = () => {
-    setModalIsOpen(false);
     setSelectedMovie(null);
   };
 
@@ -61,10 +58,10 @@ const App = () => {
   return (
     <div className={css.container}>
       <Toaster position="top-right" />
-      
       <SearchBar onSubmit={handleSearch} />
 
-      {isLoading && <Loader />}
+      {isLoading && query && <Loader />}
+      
       {isError && <ErrorMessage message={error.message} />}
 
       {data && data.results.length > 0 && (
@@ -90,11 +87,12 @@ const App = () => {
         />
       )}
 
-      <MovieModal 
-        isOpen={modalIsOpen} 
-        onRequestClose={closeModal} 
-        selectedMovie={selectedMovie} 
-      />
+      {selectedMovie && (
+        <MovieModal 
+          movie={selectedMovie}  
+          onClose={closeModal}   
+        />
+      )}
     </div>
   );
 };
